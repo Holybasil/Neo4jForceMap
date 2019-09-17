@@ -391,7 +391,7 @@ class holyNeo4j {
     // 用数据集创建svg link的一个group
     this.link = this.linkSvg
       .selectAll("g.link")
-      .data(this.links, d => d[this.options.linkKey]);
+      .data(this.links, d => d.id);
     const linkSet = this.appendLinkGroup();
     this.link = linkSet.link.merge(this.link);
     this.linkPath = this.linkSvg.selectAll(".path");
