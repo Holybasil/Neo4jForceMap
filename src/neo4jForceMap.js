@@ -36,8 +36,8 @@ class holyNeo4j {
       arrowSize: 10,
       nodeRadius: 16,
       nodeTextColor: "#333",
-      noseTextSize: "14px",
-      nodeTextKey: "labels",
+      nodeTextSize: 14,
+      nodeTextKey: "label",
       linkColor: "#a5abb6",
       linkTextColor: "#333",
       linkTextSize: "12px",
@@ -321,8 +321,8 @@ class holyNeo4j {
     this.updateNodeAndLink(nodes, links);
   }
   handleNeoDataToD3Data(data) {
-    const nodes = data.graph.nodes.map(d => Object.create(d));
-    const relationships = data.graph.relationships;
+    const nodes = data.nodes.map(d => Object.create(d));
+    const relationships = data.links;
     relationships.forEach(relationship => {
       const sameAll = relationships.filter(link => {
         return (
