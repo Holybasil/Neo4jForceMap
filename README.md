@@ -23,11 +23,14 @@ npm install holy-relationship-map --save
 ### 使用
 ```js
 import HolyRelationshipMap from "holy-relationship-map "
+
 const graph = new HolyRelationshipMap(".forceMap", options)
 ```
 
 ### 文档
+
 **options**
+
 | 参数 | 类型 | 描述 |默认值|
 | --------- | ---- | ----------- |------- |
 | nodeRadius | number | 节点的半径 |16|
@@ -49,7 +52,6 @@ const graph = new HolyRelationshipMap(".forceMap", options)
 | onNodeMouseleave | function | 节点鼠标移出事件。 |无|
 | onLinkClick | function | 关系连线点击事件。 |无|
 
-**API**
 
 
 ## 注意
