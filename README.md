@@ -3,11 +3,13 @@
 ## 介绍
 基于d3-force，将Neo4j数据可视化。
 
+## 效果
+![image.png](https://i.loli.net/2019/09/17/drJMGwc2iyhvPHB.png)
+
 ## 特点
 * 不同类型的节点有不同的颜色
 * 节点和关系线均有选中样式
 * 节点拖拽固定
-* 动态增加节点和关系
 * 两个节点之前的多关系
 * 平移和缩放
 
@@ -47,8 +49,12 @@ const graph = new HolyRelationshipMap(".forceMap", options)
 | onNodeMouseleave | function | 节点鼠标移出事件。 |无|
 | onLinkClick | function | 关系连线点击事件。 |无|
 
+**API**
+
+
 ## 注意
 * 不同类型的节点是通过node对象上的type:number决定的，现在仅支持最多六种颜色（即type的取值范围为[1,6]），后续会增加更多配色/类型。
+* 关系的唯一标识符默认为id。
 
 ## 例子
 ```html
@@ -110,6 +116,11 @@ const svg = new HolyNeo4j(".forceMap", {
     }
 });
 ```
-![image.png](https://i.loli.net/2019/09/17/LjIx2HMQfFrcdAO.png)
 
 
+## TODO
+* 动态更新节点和关系
+* 节点支持图片
+* 自定义节点不同类型的颜色
+* 关系标识文字保持从左到右
+* 节点操作工具栏
