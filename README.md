@@ -16,7 +16,7 @@
 ## 使用文档
 
 ### 安装
-```js
+```sh
 npm install holy-relationship-map --save
 ```
 
