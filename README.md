@@ -4,7 +4,7 @@
 基于d3-force，将Neo4j数据可视化。
 
 ## 效果
-![image.png](https://i.loli.net/2019/09/17/drJMGwc2iyhvPHB.png)
+![image.png](https://i.loli.net/2019/09/17/ktR8QpMEgmsObiq.png)
 
 ## 特点
 * 不同类型的节点有不同的颜色
