@@ -38,6 +38,7 @@ class holyNeo4j {
       nodeTextColor: "#333",
       nodeTextSize: 14,
       nodeTextKey: "label",
+      nodeImageKey: "img",
       linkColor: "#a5abb6",
       linkTextColor: "#333",
       linkTextSize: "12px",
@@ -90,7 +91,7 @@ class holyNeo4j {
       .append("marker")
       .attr("id", "arrow")
       .attr("markerUnits", "strokeWidth")
-      .attr("markerWidth", this.options.arrowSize) 
+      .attr("markerWidth", this.options.arrowSize)
       .attr("markerHeight", this.options.arrowSize)
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", this.options.arrowSize + this.options.nodeRadius) // arrowSize + nodeRadius
@@ -123,7 +124,7 @@ class holyNeo4j {
         this.tickLink();
       });
   }
-  
+
   appendNode() {
     const _this = this;
     return (
@@ -140,7 +141,7 @@ class holyNeo4j {
             clearTimeout(this.timer);
             this.prevent = true;
             this.options.onNodeDBClick(d);
-          } 
+          }
         })
         .on("click", function(d) {
           if (
@@ -210,17 +211,46 @@ class holyNeo4j {
     node
       .append("circle")
       .attr("r", this.options.nodeRadius)
-      .attr("fill", d => colorsLighter[d.type - 1]);
+      .attr("stroke", d =>
+        d[this.options.nodeImageKey] ? colorsLighter[d.type - 1] : "none"
+      )
+      .attr("stroke-width", d => (d[this.options.nodeImageKey] ? 4 : "none"))
+      .attr("fill", d =>
+        d[this.options.nodeImageKey]
+          ? `url(#image${d.id})`
+          : colorsLighter[d.type - 1]
+      );
+  }
+  appendImageToNode(node) {
+    node
+      .append("defs")
+      .append("pattern")
+      .attr("id", d => `image${d.id}`)
+      .attr("x", this.options.nodeRadius)
+      .attr("y", this.options.nodeRadius)
+      .attr("patternUnits", "userSpaceOnUse")
+      .attr("height", this.options.nodeRadius * 2)
+      .attr("width", this.options.nodeRadius * 2)
+      .append("image")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("height", this.options.nodeRadius * 2)
+      .attr("width", this.options.nodeRadius * 2)
+      .attr("href", d => d[this.options.nodeImageKey]);
   }
   appendTextToNode(node) {
     this.nodeText = node
       .append("text")
-      .attr("class", 'text')
+      .attr("class", "text")
       .attr("text-anchor", "middle")
       .attr("font-size", this.options.nodeTextSize)
       .attr("fill", this.options.nodeTextColor)
       .attr("pointer-events", "none")
-      .attr("y", this.options.nodeRadius / 3)
+      .attr("y", d =>
+        d[this.options.nodeImageKey]
+          ? this.options.nodeRadius + this.options.nodeTextSize
+          : this.options.nodeRadius / 3
+      )
       .text(d => {
         return d[this.options.nodeTextKey];
       });
@@ -228,6 +258,7 @@ class holyNeo4j {
   appendNodeGroup() {
     const node = this.appendNode();
     this.appendCircleToNode(node);
+    this.appendImageToNode(node);
     this.appendTextToNode(node);
     return node;
   }
@@ -266,37 +297,33 @@ class holyNeo4j {
     }
   }
   appendTextToLink(link) {
-    return (
-      link
-        .append("text")
-        .attr("class", "text")
-        .attr("fill", this.options.linkTextColor)
-        .append("textPath")
-        .attr("class", "textPath")
-        .attr(
-          "href",
-          d => "#" + d.source + d[this.options.linkTextKey] + d.target
-        )
-        .attr("startOffset", "50%")
-        .attr("font-size", this.options.linkTextSize)
-        .text(d => {
-          return this.options.linkTextMap
-            ? this.options.linkTextMap[d[this.options.linkTextKey]]
-            : d[this.options.linkTextKey];
-        })
-    );
+    return link
+      .append("text")
+      .attr("class", "text")
+      .attr("fill", this.options.linkTextColor)
+      .append("textPath")
+      .attr("class", "textPath")
+      .attr(
+        "href",
+        d => "#" + d.source + d[this.options.linkTextKey] + d.target
+      )
+      .attr("startOffset", "50%")
+      .attr("font-size", this.options.linkTextSize)
+      .text(d => {
+        return this.options.linkTextMap
+          ? this.options.linkTextMap[d[this.options.linkTextKey]]
+          : d[this.options.linkTextKey];
+      });
   }
   appendLineToLink(link) {
-    return (
-      link
-        .append("path")
-        .attr("class", "path")
-        .attr("id", d => d.source + d[this.options.linkTextKey] + d.target)
-        .attr("fill", "none")
-        .attr("marker-end", "url(#arrow)")
-        .attr("stroke", this.options.linkColor)
-        .attr("stroke-width", "1")
-    );
+    return link
+      .append("path")
+      .attr("class", "path")
+      .attr("id", d => d.source + d[this.options.linkTextKey] + d.target)
+      .attr("fill", "none")
+      .attr("marker-end", "url(#arrow)")
+      .attr("stroke", this.options.linkColor)
+      .attr("stroke-width", "1");
   }
   appendLinkGroup() {
     const link = this.appendLink();
@@ -317,58 +344,16 @@ class holyNeo4j {
     this.node = nodeSet.merge(this.node);
   }
   loadData() {
-    const { nodes, links } = this.handleNeoDataToD3Data(this.options.data);
+    this.updateGraph(this.options.data);
+  }
+  updateGraph(data) {
+    const { nodes, links } = this.handleNeoDataToD3Data(data);
     this.updateNodeAndLink(nodes, links);
   }
+  // format
   handleNeoDataToD3Data(data) {
     const nodes = data.nodes.map(d => Object.create(d));
-    const relationships = data.links;
-    relationships.forEach(relationship => {
-      const sameAll = relationships.filter(link => {
-        return (
-          (relationship.source === link.source &&
-            relationship.target === link.target) ||
-          (relationship.source === link.target &&
-            relationship.target === link.source)
-        );
-      });
-      sameAll
-        .forEach((s, i) => {
-          s.temp = {};
-          s.temp.realIndex = i + 1;
-          s.temp.totalNumber = sameAll.length;
-          s.temp.halfNumber = s.temp.totalNumber / 2; // 关系数的一半
-          s.temp.numberIsEven = s.temp.totalNumber % 2 !== 0; // 单数个点
-          s.temp.isMiddle =
-            s.temp.numberIsEven &&
-            Math.ceil(s.temp.halfNumber) === s.temp.realIndex;
-          s.temp.lowerThanHalfNumber = s.temp.realIndex <= s.temp.halfNumber; // 当前index是否小于关系数的一半
-          s.temp.sweepDirection = 1;
-          if (s.temp.lowerThanHalfNumber) {
-            s.temp.mapIndex = s.temp.realIndex;
-          } else {
-            s.temp.isMaped = 1;
-            s.temp.mapIndex = s.temp.realIndex - Math.ceil(s.temp.halfNumber);
-          }
-          if (
-            (s.source > s.target && !s.temp.isMaped) ||
-            (s.source < s.target && s.temp.isMaped)
-          ) {
-            s.temp.sweepDirection = 0;
-          } else {
-            s.temp.sweepDirection = 1;
-          }
-        });
-    });
-    var maxSame = Math.max(...relationships.map(d => d.temp.totalNumber));
-    relationships.forEach(link => {
-      link.temp.maxHalfNumber = Math.round(maxSame / 2);
-    });
-    const links = relationships
-      .filter(d => {
-        return d.source !== d.target;
-      })
-      .map(d => Object.create(d));
+    const links = data.links.map(d => Object.create(d));
     return { nodes, links };
   }
   updateNodeAndLink(nodes, links) {
@@ -387,17 +372,63 @@ class holyNeo4j {
   }
   updateLinks(links) {
     // 增量的数据加入到数据集中
-    this.links.push(...links);
+    // this.links.push(...links);
+    this.links = this.addMoreLinksAndJudge(links);
     // 用数据集创建svg link的一个group
-    this.link = this.linkSvg
-      .selectAll("g.link")
-      .data(this.links, d => d.id);
+    this.link = this.linkSvg.selectAll("g.link").data(this.links, d => d.id);
     const linkSet = this.appendLinkGroup();
     this.link = linkSet.link.merge(this.link);
     this.linkPath = this.linkSvg.selectAll(".path");
     this.linkPath = linkSet.linkPath.merge(this.linkPath);
     this.linkText = this.linkSvg.selectAll(".text");
     this.linkText = linkSet.linkText.merge(this.linkText);
+  }
+  addMoreLinksAndJudge(moreLinks) {
+    const allLinks = [...this.links, ...moreLinks];
+    allLinks.forEach(relationship => {
+      const sameAll = allLinks.filter(link => {
+        return (
+          (relationship.source === link.source &&
+            relationship.target === link.target) ||
+          (relationship.source === link.target &&
+            relationship.target === link.source)
+        );
+      });
+      sameAll.forEach((s, i) => {
+        s.temp = {};
+        s.temp.realIndex = i + 1;
+        s.temp.totalNumber = sameAll.length;
+        s.temp.halfNumber = s.temp.totalNumber / 2; // 关系数的一半
+        s.temp.numberIsEven = s.temp.totalNumber % 2 !== 0; // 单数个点
+        s.temp.isMiddle =
+          s.temp.numberIsEven &&
+          Math.ceil(s.temp.halfNumber) === s.temp.realIndex;
+        s.temp.lowerThanHalfNumber = s.temp.realIndex <= s.temp.halfNumber; // 当前index是否小于关系数的一半
+        s.temp.sweepDirection = 1;
+        if (s.temp.lowerThanHalfNumber) {
+          s.temp.mapIndex = s.temp.realIndex;
+        } else {
+          s.temp.isMaped = 1;
+          s.temp.mapIndex = s.temp.realIndex - Math.ceil(s.temp.halfNumber);
+        }
+        if (
+          (s.source > s.target && !s.temp.isMaped) ||
+          (s.source < s.target && s.temp.isMaped)
+        ) {
+          s.temp.sweepDirection = 0;
+        } else {
+          s.temp.sweepDirection = 1;
+        }
+      });
+    });
+    var maxSame = Math.max(...allLinks.map(d => d.temp.totalNumber));
+    allLinks.forEach(link => {
+      link.temp.maxHalfNumber = Math.round(maxSame / 2);
+    });
+    const links = allLinks.filter(d => {
+      return d.source !== d.target;
+    });
+    return links;
   }
   // 固定node的位置
   stickNode(d) {
@@ -422,10 +453,10 @@ class holyNeo4j {
       const rel = d3.select(this);
       const path = rel.select(".path");
       const text = rel.select(".textPath");
-      path.attr("d", d => {   
+      path.attr("d", d => {
         const dx = d.target.x - d.source.x;
         const dy = d.target.y - d.source.y;
-        const dr = Math.sqrt(dx * dx + dy * dy);   
+        const dr = Math.sqrt(dx * dx + dy * dy);
         let arc = (dr * d.temp.maxHalfNumber) / d.temp.mapIndex;
         if (d.temp.isMiddle) {
           arc = 0;
@@ -464,10 +495,10 @@ class holyNeo4j {
       );
     });
   }
-  color(type) {
-    const scale = d3.scaleOrdinal(d3.schemeCategory10)
-    return d => scale(d.type);
-  }
+  // color() {
+  //   const scale = d3.scaleOrdinal(d3.schemeCategory10);
+  //   return d => scale(d.type);
+  // }
   drag(simulation) {
     function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();

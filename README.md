@@ -50,6 +50,9 @@ const graph = new HolyRelationshipMap(".forceMap", options)
 | onLinkClick | function | 关系连线点击事件。 |无|
 
 **API**
+| 方法 | 参数 | 描述 |
+| ----- | ----- | ---- | 
+| updateGraph | object | 更新节点和关系 | 
 
 
 ## 注意
@@ -119,8 +122,8 @@ const svg = new HolyNeo4j(".forceMap", {
 
 
 ## TODO
-* 动态更新节点和关系
-* 节点支持图片
-* 自定义节点不同类型的颜色
-* 关系标识文字保持从左到右
-* 节点操作工具栏
+- [x] 动态更新节点和关系
+- [ ] 节点支持图片
+- [ ] 自定义节点不同类型的颜色
+- [ ] 关系标识文字保持从左到右
+- [ ] 节点操作工具栏
