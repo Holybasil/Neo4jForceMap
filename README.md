@@ -35,16 +35,18 @@ const graph = new HolyRelationshipMap(".forceMap", options)
 | --------- | ---- | ----------- |------- |
 | nodeRadius | number | 节点的半径 |16|
 | arrowSize | number | 关系指向箭头的大小 |10|
+| nodeKey | string | 节点的key，关系中的source和target值对应节点数据中的哪个key的值 |id|
 | nodeTextKey | string | 节点的文本key |label|
 | nodeTextSize | number | 节点文本的字体大小 |14|
 | nodeTextColor | string | 节点文本的颜色 |#333|
-| linkKey | string | 关系中的source和target值对应节点数据中的哪个key的值 |id|
-| linkTextKey | string | 关系文本key |type|
+| linkKey | string | 关系的key |id|
+| linkTextKey | string | 关系文本key，同时默认为渲染文本 |type|
 | linkTextMap | string | 关系文本的映射表，即linkTextMap[linkTextKey]才是需要渲染的文本 |无|
 | linkTextSize | number | 关系文本字体大小 |12|
 | linkTextColor | string | 关系文本的颜色 |#333|
 | linkColor | string | 关系线的颜色 |#a5abb6|
-| linkHighlightColor | string | 关系高亮时文本key |#66b1ff|
+| linkHighlightColor | string | 关系高亮时文本key |#ff9300|
+| arrowSize | number | 关系指向箭头的大小 |10|
 | data | object | 图谱数据，拥有nodes数组和links数组，必填。 |无|
 | onNodeClick | function | 节点左键点击事件。 |无|
 | onNodeDBClick | function | 节点双击事件。 |无|
@@ -126,7 +128,7 @@ const svg = new HolyNeo4j(".forceMap", {
 
 ## TODO
 - [x] 动态更新节点和关系
+- [x] 关系标识文字保持从左到右
 - [ ] 节点支持图片
 - [ ] 自定义节点不同类型的颜色
-- [ ] 关系标识文字保持从左到右
 - [ ] 节点操作工具栏
